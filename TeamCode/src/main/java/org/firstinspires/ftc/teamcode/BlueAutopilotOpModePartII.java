@@ -48,6 +48,8 @@ public class BlueAutopilotOpModePartII extends OpMode {
     boolean rotation;
     boolean xWasDown;
     boolean runSpinner;
+    boolean driversNotifiedEndgame = false;
+
     public double startTime = runtime.seconds();
 
     @Override
@@ -126,7 +128,8 @@ public class BlueAutopilotOpModePartII extends OpMode {
 
 
         // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Initialized");        
+
     }
 
 
@@ -141,6 +144,7 @@ public class BlueAutopilotOpModePartII extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+
     }
 
     /*
@@ -148,6 +152,7 @@ public class BlueAutopilotOpModePartII extends OpMode {
      */
     //key press function
     public void loop() {
+        ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
         startTime = runtime.seconds();
         //tracking object mode: User input towards object and robot automatically connects
         if (gamepad1.b) {
@@ -333,6 +338,12 @@ public class BlueAutopilotOpModePartII extends OpMode {
             Intake2.setPower(intakeFactor * intakePower);
             Slide.setPower(slidePower);
         }
+        if (elapsedTime.seconds() >= 85 && !driversNotifiedEndgame) { // 85 = 5 seconds before
+            gamepad1.rumbleBlips(3);
+            gamepad2.rumbleBlips(3);
+            driversNotifiedEndgame = true;
+        }
+        
         telemetry.update();
     }
 }
