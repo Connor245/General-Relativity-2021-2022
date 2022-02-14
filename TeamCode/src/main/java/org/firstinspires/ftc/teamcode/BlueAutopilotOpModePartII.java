@@ -132,24 +132,6 @@ public class BlueAutopilotOpModePartII extends OpMode {
 
     }
 
-
-    @Override
-    public void init_loop() {
-        //Servo1.setPosition(0.3);
-    }
-
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
-    @Override
-    public void start() {
-        runtime.reset();
-
-    }
-
-    /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-     */
     //key press function
     public void loop() {
         ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
