@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,6 +24,7 @@ public class BlueAutopilotOpModePartII extends OpMode {
     private DcMotor Intake2;
     private DcMotor Slide;
     private Servo Bucket;
+    private tfCam tensorCam = new tfCam (telemetry);
     double bucketPos;
     double drive;
     double turn;
@@ -126,14 +128,19 @@ public class BlueAutopilotOpModePartII extends OpMode {
         Intake2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        tensorCam.initTfod(hardwareMap);
+        tensorCam.runOpMode();
 
         // Tell the driver that initialization is complete.
-        telemetry.addData("Status", "Initialized");        
+        telemetry.addData("Status", "Initialized");
+
 
     }
 
     //key press function
     public void loop() {
+        tensorCam.tfLoop();
+
         ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
         startTime = runtime.seconds();
         //tracking object mode: User input towards object and robot automatically connects

@@ -20,6 +20,7 @@ public class BlueDuckPark extends LinearOpMode {
     private DcMotor Intake2;
     private DcMotor Slide;
     private Servo Bucket;
+    private Caller caller = new Caller();
     double armPos;
     double clawPos;
     double drive;
