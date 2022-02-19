@@ -66,7 +66,7 @@ public class OpenCVAuto extends LinearOpMode {
         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         if (driveType.equals("forward")) {
             FrontLeft.setTargetPosition((int) (42.78 * value1)); //enter value in inches
-            BackLeft.setTargetPosition((int) (42.78 * value1));
+            BackLeft.setTargetPosition((int) (-42.78 * value1));
             FrontRight.setTargetPosition((int) (42.78 * value1));
             BackRight.setTargetPosition((int) (42.78 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -79,7 +79,7 @@ public class OpenCVAuto extends LinearOpMode {
             BackRight.setPower(power);
         } else if (driveType.equals("strafe")) {
             FrontLeft.setTargetPosition((int) (47.53 * value1)); //enter value in inches
-            BackLeft.setTargetPosition((int) (-47.53 * value1));
+            BackLeft.setTargetPosition((int) (47.53 * value1));
             FrontRight.setTargetPosition((int) (-47.53 * value1));
             BackRight.setTargetPosition((int) (47.53 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -92,7 +92,7 @@ public class OpenCVAuto extends LinearOpMode {
             BackRight.setPower(power);
         } else if (driveType.equals("turn")) {
             FrontLeft.setTargetPosition((int) (10.12 * value1)); //enter value in degrees
-            BackLeft.setTargetPosition((int) (10.12 * value1));
+            BackLeft.setTargetPosition((int) (-10.12 * value1));
             FrontRight.setTargetPosition((int) (-10.12 * value1));
             BackRight.setTargetPosition((int) (-10.12 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -207,7 +207,6 @@ public class OpenCVAuto extends LinearOpMode {
         int level;
         int[] counts = {0, 0, 0};
         for (int i = 0; i < 50; i++) {
-            wait(10);
             if (webcamExample.getShippingHubLevel() == 0) {
                 i = 0;
                 continue;
