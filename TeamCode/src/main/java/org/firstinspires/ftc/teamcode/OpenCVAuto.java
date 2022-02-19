@@ -204,7 +204,25 @@ public class OpenCVAuto extends LinearOpMode {
         telemetry.update();
         resetStartTime();
         waitForStart();
-        telemetry.addData("ShippingHub", webcamExample.getShippingHubLevel());
+        int level;
+        int[] counts = {0, 0, 0};
+        for (int i = 0; i < 50; i++) {
+            wait(10);
+            if (webcamExample.getShippingHubLevel() == 0) {
+                i = 0;
+                continue;
+            }
+            counts[webcamExample.getShippingHubLevel() - 1]++;
+        }
+        if (counts[0] > counts[1] && counts[0] > counts[2]) {
+            level = 1;
+        } else if (counts[1] > counts[0] && counts[1] > counts[2]) {
+            level = 2;
+        } else {
+            level = 3;
+        }
+        telemetry.addData("Shipping Hub Level", level);
+        telemetry.update();
 
         mecanumDrive("forward", -3.2, .55);
         mecanumDrive("strafe", -4.2, .5);
@@ -223,7 +241,7 @@ public class OpenCVAuto extends LinearOpMode {
 
 
 
-        Slide.setTargetPosition(-930);
+        Slide.setTargetPosition(-210-240*level);
         Slide.setPower(0.5);
         Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (Slide.isBusy()) {
