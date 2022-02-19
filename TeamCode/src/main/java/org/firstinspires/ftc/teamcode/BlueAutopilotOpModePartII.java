@@ -24,7 +24,6 @@ public class BlueAutopilotOpModePartII extends OpMode {
     private DcMotor Intake2;
     private DcMotor Slide;
     private Servo Bucket;
-    private tfCam tensorCam = new tfCam (telemetry);
     double bucketPos;
     double drive;
     double turn;
@@ -128,8 +127,7 @@ public class BlueAutopilotOpModePartII extends OpMode {
         Intake2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        tensorCam.initTfod(hardwareMap);
-        tensorCam.runOpMode();
+
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -139,7 +137,6 @@ public class BlueAutopilotOpModePartII extends OpMode {
 
     //key press function
     public void loop() {
-        tensorCam.tfLoop();
 
         ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
         startTime = runtime.seconds();
@@ -305,14 +302,14 @@ public class BlueAutopilotOpModePartII extends OpMode {
             telemetry.addData("intakeSetting", intakeSetting);
             telemetry.addData("spinnerSetting", spinnerSetting);*/
             //Telemetry
-            telemetry.addData("encoder-front-left", FrontLeft.getCurrentPosition());
-            telemetry.addData("encoder-back-left", BackLeft.getCurrentPosition());
-            telemetry.addData("encoder-front-right", FrontRight.getCurrentPosition());
-            telemetry.addData("encoder-back-right", BackRight.getCurrentPosition());            telemetry.addData("encoder-back-right", BackRight.getCurrentPosition());
-            telemetry.addData("encoder-slide", Slide.getCurrentPosition());            telemetry.addData("encoder-back-right", BackRight.getCurrentPosition());
-
-
-            telemetry.addData("Bucket Position", bucketPos);
+//            telemetry.addData("encoder-front-left", FrontLeft.getCurrentPosition());
+//            telemetry.addData("encoder-back-left", BackLeft.getCurrentPosition());
+//            telemetry.addData("encoder-front-right", FrontRight.getCurrentPosition());
+//            telemetry.addData("encoder-back-right", BackRight.getCurrentPosition());            telemetry.addData("encoder-back-right", BackRight.getCurrentPosition());
+//            telemetry.addData("encoder-slide", Slide.getCurrentPosition());            telemetry.addData("encoder-back-right", BackRight.getCurrentPosition());
+//
+//
+//            telemetry.addData("Bucket Position", bucketPos);
             telemetry.addData("Run Time", startTime);
 
             telemetry.update();
