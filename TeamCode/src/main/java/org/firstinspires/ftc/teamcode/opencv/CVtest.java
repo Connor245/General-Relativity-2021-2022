@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opencv;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,8 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Blue Duck Cube Warehouse", group="Exercises")
-public class Blue_Duck_Cube_Warehouse extends LinearOpMode {
+import org.firstinspires.ftc.teamcode.opmodes.WebcamExample;
+
+@Autonomous(name="RedCubeDuckWarehouseCVtest", group="Exercises")
+public class CVtest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime(); //Declared AND Initialized
     private DcMotor FrontLeft; //Declared  but not initialized
     private DcMotor FrontRight;
@@ -56,6 +58,8 @@ public class Blue_Duck_Cube_Warehouse extends LinearOpMode {
     int armMode;
     double initialposition;
     public double startTime = runtime.milliseconds();
+
+    public WebcamExample webcamExample = null;
 
     public void mecanumDrive(String driveType, double value1, double power) {
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -115,40 +119,6 @@ public class Blue_Duck_Cube_Warehouse extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         double x = 0; // encoder ticks/foot
-        telemetry.addData("Status", "Initialized");
-        drive = 0.0;
-        turn = 0.0;
-        strafe = 0.0;
-        force = 0.0;
-        spin = 0.0;
-        slide = 0.0;
-        frontLeftPower = 0.0;
-        frontRightPower = 0.0;
-        backLeftPower = 0.0;
-        backRightPower = 0.0;
-        intakePower = 0.0;
-        spinnerPower = 0.0;
-        slidePower = 0.0;
-        multiplier = 1.0;
-        intakeSetting = 1;
-        spinnerSetting = 1;
-        intakeFactor = 1.0;
-        trackingMode = false;
-        spinFactor = 0.0;
-        checker = false;
-        rotation = false;
-        armPos = 0.5;
-        clawPos = 0.9;
-        holdArm = false;
-        clawMode = 1;
-        bWasDown = false;
-        xWasDown = false;
-        dpadWasDown = false;
-        armMode = 0;
-
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
         FrontLeft = hardwareMap.get(DcMotor.class, "FrontLeft");
         BackLeft = hardwareMap.get(DcMotor.class, "BackLeft");
         FrontRight = hardwareMap.get(DcMotor.class, "FrontRight");
@@ -159,6 +129,7 @@ public class Blue_Duck_Cube_Warehouse extends LinearOpMode {
         Slide = hardwareMap.get(DcMotor.class, "Slide");
         Bucket = hardwareMap.get(Servo.class, "Bucket");
 
+    
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -167,7 +138,7 @@ public class Blue_Duck_Cube_Warehouse extends LinearOpMode {
         FrontRight.setDirection(DcMotor.Direction.FORWARD);
         BackRight.setDirection(DcMotor.Direction.FORWARD);
         Intake.setDirection(DcMotor.Direction.FORWARD);
-        Spinner.setDirection(DcMotor.Direction.REVERSE);
+        Spinner.setDirection(DcMotor.Direction.FORWARD);
         Intake2.setDirection(DcMotor.Direction.FORWARD);
         Slide.setDirection(DcMotor.Direction.FORWARD);
 
@@ -194,51 +165,103 @@ public class Blue_Duck_Cube_Warehouse extends LinearOpMode {
         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // set motors to run to target encoder position and stop with brakes on.
+        webcamExample = new WebcamExample();
+        webcamExample.initCV(hardwareMap);
 
-        //Spinner.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        telemetry.addData("Mode", "running");
-        telemetry.update();
         resetStartTime();
         waitForStart();
-        mecanumDrive("forward", 3.2, .55);
-        mecanumDrive("strafe", 4.2, .5);
-        telemetry.addLine("moved");
-        double duckTime = runtime.seconds();
-        while (opModeIsActive() && runtime.seconds() < duckTime + 6) {
-            Spinner.setPower(-0.5);
-            Intake.setPower(1);
-        }
-        Spinner.setPower(0);
-        Intake.setPower(0);
-        mecanumDrive("forward", 2, .5);
-        mecanumDrive("strafe", -48.5, .5);
-        mecanumDrive("forward", 17, .5);
 
+        while (opModeIsActive()) {
+            int level;
+            int[] counts = {0, 0, 0};
+            for (int i = 0; i < 50; i++) {
+                if (webcamExample.getShippingHubLevel() == 0) {
+                    i = 0;
+                    continue;
+                }
+                counts[webcamExample.getShippingHubLevel() - 1]++;
+            }
+            if (counts[0] > counts[1] && counts[0] > counts[2]) { // Level = 1
+                level = 1;
+                mecanumDrive("strafe", -24, .7);
+                mecanumDrive("forward", 20, .7);
+                double bucketTime = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < bucketTime + 2) {
+                    Bucket.setPosition(0.5);
+                }
 
-        Slide.setTargetPosition(-950);
-        Slide.setPower(0.5);
-        Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (Slide.isBusy()) {
-        }
+                resetStartTime();
+                double bucketTime2 = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < bucketTime2 + 1) {
+                    Bucket.setPosition(1);
+                }
+                mecanumDrive("forward", -17.5, .7);
+                mecanumDrive("strafe", -35, .7);
+                double duckTime = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < duckTime + 6) {
+                    Spinner.setPower(-0.5);
+                }
+                Spinner.setPower(0);
+                mecanumDrive("strafe", 35, .7);
+                mecanumDrive("turn", 90, .7);
+                mecanumDrive("strafe", -7, .7);
+                mecanumDrive("forward", -50, .7);
+            } else if (counts[1] > counts[0] && counts[1] > counts[2]) { // Level = 2
+                level = 2;
+                level = 1;
+                mecanumDrive("strafe", -24, .7);
+                mecanumDrive("forward", 20, .7);
+                double bucketTime = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < bucketTime + 2) {
+                    Bucket.setPosition(0.5);
+                }
 
-        resetStartTime();
-        double bucketTime = runtime.seconds();
-        while (opModeIsActive() && runtime.seconds() < bucketTime + 3) {
-            Bucket.setPosition(0.5);
-        }
-        double bucketTime2 = runtime.seconds();
-        while (opModeIsActive() && runtime.seconds() < bucketTime2 + 1) {
-            Bucket.setPosition(1);
-        }
-        Slide.setTargetPosition(0);
-        Slide.setPower(0.5);
-        Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                resetStartTime();
+                double bucketTime2 = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < bucketTime2 + 1) {
+                    Bucket.setPosition(1); // Need to use encoders here to figure out cube
+                }
+                mecanumDrive("forward", -17.5, .7);
+                mecanumDrive("strafe", -35, .7);
+                double duckTime = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < duckTime + 6) {
+                    Spinner.setPower(-0.5);
+                }
+                Spinner.setPower(0);
+                mecanumDrive("strafe", 35, .7);
+                mecanumDrive("turn", 90, .7);
+                mecanumDrive("strafe", -7, .7);
+                mecanumDrive("forward", -50, .7);
+            } else { // Level = 3
+                level = 3;
+                level = 1;
+                mecanumDrive("strafe", -24, .7);
+                mecanumDrive("forward", 20, .7);
+                double bucketTime = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < bucketTime + 2) {
+                    Bucket.setPosition(0.5);
+                }
 
-        mecanumDrive("forward", -10, .5);
-        mecanumDrive("turn", 90, .5);
-        mecanumDrive("strafe", -16, .7);
-        mecanumDrive("forward", 55, 1);
-    }
+                resetStartTime();
+                double bucketTime2 = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < bucketTime2 + 1) {
+                    Bucket.setPosition(1); // Need to use encoders to figure out where to drop the cube
+                }
+                mecanumDrive("forward", -17.5, .7);
+                mecanumDrive("strafe", -35, .7);
+                double duckTime = runtime.seconds();
+                while (opModeIsActive() && runtime.seconds() < duckTime + 6) {
+                    Spinner.setPower(-0.5);
+                }
+                Spinner.setPower(0);
+                mecanumDrive("strafe", 35, .7);
+                mecanumDrive("turn", 90, .7);
+                mecanumDrive("strafe", -7, .7);
+                mecanumDrive("forward", -50, .7);
+            }
+            telemetry.addData("Shipping Hub Level", level);
+            telemetry.update();
+
+        }
+        }
 }

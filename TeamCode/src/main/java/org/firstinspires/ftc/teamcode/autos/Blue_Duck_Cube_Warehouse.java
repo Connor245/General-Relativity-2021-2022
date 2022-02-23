@@ -1,13 +1,13 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autos;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-//@Autonomous(name="DucksAndParkRed", group="Exercises")
-public class DucksAndParkRed extends LinearOpMode
-{
+@Autonomous(name="Blue Duck Cube Warehouse", group="Exercises")
+public class Blue_Duck_Cube_Warehouse extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime(); //Declared AND Initialized
     private DcMotor FrontLeft; //Declared  but not initialized
     private DcMotor FrontRight;
@@ -34,9 +34,16 @@ public class DucksAndParkRed extends LinearOpMode
     double spinnerPower;
     double slidePower;
     double multiplier;
+    double timeA; //strafe to carousel
+    double timeB; //do carousel
+    double timeC; //move back
+    double timeD; //turn robot
+    double timeE; //strafe left and drive into park
+    double tickConversion;
     int intakeSetting;
     int spinnerSetting;
     double intakeFactor;
+    int i;
     boolean trackingMode;
     double spinFactor;
     boolean checker;
@@ -47,17 +54,19 @@ public class DucksAndParkRed extends LinearOpMode
     boolean bWasDown;
     boolean xWasDown;
     int armMode;
+    double initialposition;
     public double startTime = runtime.milliseconds();
+
     public void mecanumDrive(String driveType, double value1, double power) {
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BackLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        if(driveType.equals("forward")){
-            FrontLeft.setTargetPosition((int) (42.78*value1)); //enter value in inches
-            BackLeft.setTargetPosition((int) (42.78*value1));
-            FrontRight.setTargetPosition((int) (42.78*value1));
-            BackRight.setTargetPosition((int)(42.78*value1));
+        if (driveType.equals("forward")) {
+            FrontLeft.setTargetPosition((int) (42.78 * value1)); //enter value in inches
+            BackLeft.setTargetPosition((int) (42.78 * value1));
+            FrontRight.setTargetPosition((int) (42.78 * value1));
+            BackRight.setTargetPosition((int) (42.78 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             BackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -66,11 +75,11 @@ public class DucksAndParkRed extends LinearOpMode
             BackLeft.setPower(power);
             FrontRight.setPower(power);
             BackRight.setPower(power);
-        } else if(driveType.equals("strafe")){
-            FrontLeft.setTargetPosition((int) (47.53*value1)); //enter value in inches
-            BackLeft.setTargetPosition((int) (-47.53*value1));
-            FrontRight.setTargetPosition((int) (-47.53*value1));
-            BackRight.setTargetPosition((int)(47.53*value1));
+        } else if (driveType.equals("strafe")) {
+            FrontLeft.setTargetPosition((int) (47.53 * value1)); //enter value in inches
+            BackLeft.setTargetPosition((int) (-47.53 * value1));
+            FrontRight.setTargetPosition((int) (-47.53 * value1));
+            BackRight.setTargetPosition((int) (47.53 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             BackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -79,11 +88,11 @@ public class DucksAndParkRed extends LinearOpMode
             BackLeft.setPower(power);
             FrontRight.setPower(power);
             BackRight.setPower(power);
-        } else if(driveType.equals("turn")){
-            FrontLeft.setTargetPosition((int) (10.12*value1)); //enter value in degrees
-            BackLeft.setTargetPosition((int) (10.12*value1));
-            FrontRight.setTargetPosition((int) (-10.12*value1));
-            BackRight.setTargetPosition((int)(-10.12*value1));
+        } else if (driveType.equals("turn")) {
+            FrontLeft.setTargetPosition((int) (10.12 * value1)); //enter value in degrees
+            BackLeft.setTargetPosition((int) (10.12 * value1));
+            FrontRight.setTargetPosition((int) (-10.12 * value1));
+            BackRight.setTargetPosition((int) (-10.12 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             BackLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             FrontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -95,15 +104,16 @@ public class DucksAndParkRed extends LinearOpMode
         }
 
         //noinspection StatementWithEmptyBody
-        while((FrontLeft.isBusy()||BackLeft.isBusy()||BackRight.isBusy()||FrontRight.isBusy())&&opModeIsActive()){}
+        while ((FrontLeft.isBusy() || BackLeft.isBusy() || BackRight.isBusy() || FrontRight.isBusy()) && opModeIsActive()) {
+        }
         FrontLeft.setPower(0.0);
         BackLeft.setPower(0.0);
         FrontRight.setPower(0.0);
         BackRight.setPower(0.0);
 
     }
-    public void runOpMode() throws InterruptedException
-    {
+
+    public void runOpMode() throws InterruptedException {
         double x = 0; // encoder ticks/foot
         telemetry.addData("Status", "Initialized");
         drive = 0.0;
@@ -150,8 +160,6 @@ public class DucksAndParkRed extends LinearOpMode
         Bucket = hardwareMap.get(Servo.class, "Bucket");
 
 
-
-
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         FrontLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -159,7 +167,7 @@ public class DucksAndParkRed extends LinearOpMode
         FrontRight.setDirection(DcMotor.Direction.FORWARD);
         BackRight.setDirection(DcMotor.Direction.FORWARD);
         Intake.setDirection(DcMotor.Direction.FORWARD);
-        Spinner.setDirection(DcMotor.Direction.FORWARD);
+        Spinner.setDirection(DcMotor.Direction.REVERSE);
         Intake2.setDirection(DcMotor.Direction.FORWARD);
         Slide.setDirection(DcMotor.Direction.FORWARD);
 
@@ -194,27 +202,43 @@ public class DucksAndParkRed extends LinearOpMode
         telemetry.update();
         resetStartTime();
         waitForStart();
-        mecanumDrive("forward", -3, 1);
-        mecanumDrive("strafe", -3, .5);
-        mecanumDrive("forward", -3, 1);
+        mecanumDrive("forward", 3.2, .55);
+        mecanumDrive("strafe", 4.2, .5);
         telemetry.addLine("moved");
         double duckTime = runtime.seconds();
-        while(opModeIsActive() && runtime.seconds()<duckTime+3){
-            Spinner.setPower(-1.0);
+        while (opModeIsActive() && runtime.seconds() < duckTime + 6) {
+            Spinner.setPower(-0.5);
+            Intake.setPower(1);
         }
         Spinner.setPower(0);
-        mecanumDrive("forward", 22, 1);
-        mecanumDrive("strafe",-42, 1);
-        resetStartTime();
-        double slideTime = runtime.seconds();
-        while(opModeIsActive() && runtime.seconds()<slideTime+4){
-            Slide.setPower(-0.4);
+        Intake.setPower(0);
+        mecanumDrive("forward", 2, .5);
+        mecanumDrive("strafe", -48.5, .5);
+        mecanumDrive("forward", 17, .5);
+
+
+        Slide.setTargetPosition(-950);
+        Slide.setPower(0.5);
+        Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (Slide.isBusy()) {
         }
-        Slide.setPower(0);
-        telemetry.addLine("slide moved");
-        Bucket.setPosition(0.5);
-//        mecanumDrive("forward", 5, 1);
-//        mecanumDrive("strafe", 2, 1);
-//        mecanumDrive("forward", 93, 1);
+
+        resetStartTime();
+        double bucketTime = runtime.seconds();
+        while (opModeIsActive() && runtime.seconds() < bucketTime + 3) {
+            Bucket.setPosition(0.5);
+        }
+        double bucketTime2 = runtime.seconds();
+        while (opModeIsActive() && runtime.seconds() < bucketTime2 + 1) {
+            Bucket.setPosition(1);
+        }
+        Slide.setTargetPosition(0);
+        Slide.setPower(0.5);
+        Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        mecanumDrive("forward", -10, .5);
+        mecanumDrive("turn", 90, .5);
+        mecanumDrive("strafe", -16, .7);
+        mecanumDrive("forward", 55, 1);
     }
 }

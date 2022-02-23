@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode;
-
 //please note: completely expected to crash and burn
 //INCOMPLETE DO NOT RUN NEED TO ACTUALLY CODE MOVEMENT
+package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,8 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-//@Autonomous(name="Blue Duck Cube Park Auto", group="Autonomous")
-public class BlueDuckCubePark extends LinearOpMode {
+//@Autonomous(name="Duck Auto", group="Autonomous")
+public class BlueDuckPark extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime(); //Declared AND Initialized
     private DcMotor FrontLeft; //Declared  but not initialized
     private DcMotor FrontRight;
@@ -37,9 +36,15 @@ public class BlueDuckCubePark extends LinearOpMode {
     double spinnerPower;
     double slidePower;
     double multiplier;
+    double timeA; //strafe to carousel
+    double timeB; //do carousel
+    double timeC; //move back
+    double timeD; //turn robot
+    double timeE; //strafe left and drive into park
     int intakeSetting;
     int spinnerSetting;
     double intakeFactor;
+    int i;
     boolean trackingMode;
     double spinFactor;
     boolean checker;
@@ -156,27 +161,22 @@ public class BlueDuckCubePark extends LinearOpMode {
 
         }
 
-        while (opModeIsActive() && (7 < runtime.seconds()) && runtime.seconds() < 9.5) {
+        while (opModeIsActive() && (7 < runtime.seconds()) && runtime.seconds() < 8.5) {
             strafe = 0;
             drive = 0.5;
             setMecanumPower();
             Spinner.setPower(0);
 
         }
-        while (opModeIsActive() && (9.5 < runtime.seconds()) && runtime.seconds() < 10.5) {
-            strafe = 0;
+        while (opModeIsActive() && (8.5 < runtime.seconds()) && runtime.seconds() < 10) {
+            strafe = -0.4;
             drive = 0;
-            frontLeftPower = 0.8;
-            frontRightPower =  -0.8;
-            backLeftPower = 0.8;
-            backRightPower = -0.8;
             setMecanumPower();
         }
-        while (opModeIsActive() && (10.5 < runtime.seconds()) && runtime.seconds() < 12) {
+        while (opModeIsActive() && (10 < runtime.seconds()) && runtime.seconds() < 13) {
             strafe = 0;
-            drive = 0.5;
+            drive = 0.75;
             setMecanumPower();
         }
     }
 }
-

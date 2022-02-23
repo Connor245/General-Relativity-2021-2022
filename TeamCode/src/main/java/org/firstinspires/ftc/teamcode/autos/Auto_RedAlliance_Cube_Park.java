@@ -1,13 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name="OpenCV Red", group="Exercises")
-public class OpenCVAuto extends LinearOpMode {
+@Autonomous(name="Auto Red Alliance Carousel Side (Duck-Cube(top)-Parking_Zone)", group="Exercises")
+public class Auto_RedAlliance_Cube_Park extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime(); //Declared AND Initialized
     private DcMotor FrontLeft; //Declared  but not initialized
     private DcMotor FrontRight;
@@ -34,16 +36,9 @@ public class OpenCVAuto extends LinearOpMode {
     double spinnerPower;
     double slidePower;
     double multiplier;
-    double timeA; //strafe to carousel
-    double timeB; //do carousel
-    double timeC; //move back
-    double timeD; //turn robot
-    double timeE; //strafe left and drive into park
-    double tickConversion;
     int intakeSetting;
     int spinnerSetting;
     double intakeFactor;
-    int i;
     boolean trackingMode;
     double spinFactor;
     boolean checker;
@@ -54,10 +49,7 @@ public class OpenCVAuto extends LinearOpMode {
     boolean bWasDown;
     boolean xWasDown;
     int armMode;
-    double initialposition;
     public double startTime = runtime.milliseconds();
-
-    public WebcamExample webcamExample = null;
 
     public void mecanumDrive(String driveType, double value1, double power) {
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -66,7 +58,7 @@ public class OpenCVAuto extends LinearOpMode {
         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         if (driveType.equals("forward")) {
             FrontLeft.setTargetPosition((int) (42.78 * value1)); //enter value in inches
-            BackLeft.setTargetPosition((int) (-42.78 * value1));
+            BackLeft.setTargetPosition((int) (42.78 * value1));
             FrontRight.setTargetPosition((int) (42.78 * value1));
             BackRight.setTargetPosition((int) (42.78 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -79,7 +71,7 @@ public class OpenCVAuto extends LinearOpMode {
             BackRight.setPower(power);
         } else if (driveType.equals("strafe")) {
             FrontLeft.setTargetPosition((int) (47.53 * value1)); //enter value in inches
-            BackLeft.setTargetPosition((int) (47.53 * value1));
+            BackLeft.setTargetPosition((int) (-47.53 * value1));
             FrontRight.setTargetPosition((int) (-47.53 * value1));
             BackRight.setTargetPosition((int) (47.53 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -92,7 +84,7 @@ public class OpenCVAuto extends LinearOpMode {
             BackRight.setPower(power);
         } else if (driveType.equals("turn")) {
             FrontLeft.setTargetPosition((int) (10.12 * value1)); //enter value in degrees
-            BackLeft.setTargetPosition((int) (-10.12 * value1));
+            BackLeft.setTargetPosition((int) (10.12 * value1));
             FrontRight.setTargetPosition((int) (-10.12 * value1));
             BackRight.setTargetPosition((int) (-10.12 * value1));
             FrontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -112,6 +104,7 @@ public class OpenCVAuto extends LinearOpMode {
         BackLeft.setPower(0.0);
         FrontRight.setPower(0.0);
         BackRight.setPower(0.0);
+
     }
 
     public void runOpMode() throws InterruptedException {
@@ -147,8 +140,6 @@ public class OpenCVAuto extends LinearOpMode {
         dpadWasDown = false;
         armMode = 0;
 
-        webcamExample = new WebcamExample();
-        webcamExample.initCV(hardwareMap);
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -200,55 +191,22 @@ public class OpenCVAuto extends LinearOpMode {
         // set motors to run to target encoder position and stop with brakes on.
 
         //Spinner.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         telemetry.addData("Mode", "running");
         telemetry.update();
         resetStartTime();
         waitForStart();
-        int level;
-        int[] counts = {0, 0, 0};
-        for (int i = 0; i < 50; i++) {
-            if (webcamExample.getShippingHubLevel() == 0) {
-                i = 0;
-                continue;
-            }
-            counts[webcamExample.getShippingHubLevel() - 1]++;
-        }
-        if (counts[0] > counts[1] && counts[0] > counts[2]) {
-            level = 1;
-        } else if (counts[1] > counts[0] && counts[1] > counts[2]) {
-            level = 2;
-        } else {
-            level = 3;
-        }
-        telemetry.addData("Shipping Hub Level", level);
-        telemetry.update();
-
-        mecanumDrive("forward", -3.2, .55);
-        mecanumDrive("strafe", -4.2, .5);
-        mecanumDrive("forward", -3.5, .5);
-        telemetry.addLine("moved");
-        double duckTime = runtime.seconds();
-        while (opModeIsActive() && runtime.seconds() < duckTime + 6) {
-            Spinner.setPower(-0.5);
 
 
-
-        }
-        Spinner.setPower(0);
-        mecanumDrive("strafe", -39, .5);
-        mecanumDrive("forward", 28, .5);
-
-
-
-        Slide.setTargetPosition(-210-240*level);
+        mecanumDrive("forward", 30, .6);
+        Slide.setTargetPosition(-930);
         Slide.setPower(0.5);
         Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (Slide.isBusy()) {
         }
-
         resetStartTime();
         double bucketTime = runtime.seconds();
-        while (opModeIsActive() && runtime.seconds() < bucketTime + 3) {
+        while (opModeIsActive() && runtime.seconds() < bucketTime + 2) {
             Bucket.setPosition(0.5);
         }
 
@@ -263,8 +221,9 @@ public class OpenCVAuto extends LinearOpMode {
         Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (Slide.isBusy()) {
         }
-        mecanumDrive("forward", -27, 1);
-        mecanumDrive("strafe", 41, 1);
-        mecanumDrive("forward", 112, 1);
+        mecanumDrive("turn", -90, .6);
+        mecanumDrive("strafe", 30.1, .6);
+        mecanumDrive("forward", -50, 1);
     }
+
 }
