@@ -127,6 +127,7 @@ public class CVtest extends LinearOpMode {
         Slide = hardwareMap.get(DcMotor.class, "Slide");
         Bucket = hardwareMap.get(Servo.class, "Bucket");
 
+    
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
