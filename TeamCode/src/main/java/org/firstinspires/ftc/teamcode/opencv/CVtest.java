@@ -20,43 +20,6 @@ public class CVtest extends LinearOpMode {
     private DcMotor Intake2;
     private DcMotor Slide;
     private Servo Bucket;
-    double armPos;
-    double clawPos;
-    double drive;
-    double turn;
-    double strafe;
-    double force;
-    double spin;
-    double slide;
-    double frontLeftPower;
-    double frontRightPower;
-    double backLeftPower;
-    double backRightPower;
-    double intakePower;
-    double spinnerPower;
-    double slidePower;
-    double multiplier;
-    double timeA; //strafe to carousel
-    double timeB; //do carousel
-    double timeC; //move back
-    double timeD; //turn robot
-    double timeE; //strafe left and drive into park
-    double tickConversion;
-    int intakeSetting;
-    int spinnerSetting;
-    double intakeFactor;
-    int i;
-    boolean trackingMode;
-    double spinFactor;
-    boolean checker;
-    boolean rotation;
-    boolean holdArm;
-    boolean dpadWasDown;
-    int clawMode;
-    boolean bWasDown;
-    boolean xWasDown;
-    int armMode;
-    double initialposition;
     public double startTime = runtime.milliseconds();
 
     public WebcamExample webcamExample = null;
