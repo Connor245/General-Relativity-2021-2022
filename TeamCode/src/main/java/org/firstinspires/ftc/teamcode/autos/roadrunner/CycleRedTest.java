@@ -55,7 +55,6 @@ public class CycleRedTest extends LinearOpMode {
     boolean hasFreight;
     Pose2d currentPose = new Pose2d(6, -64, Math.toRadians(-90));
     RevColorSensorV3 colorSensor;
-    SampleMecanumDrive myLocalizer = new SampleMecanumDrive(hardwareMap);
 
     public void mecanumDrive(String driveType, double value1, double power) {
 
@@ -127,7 +126,7 @@ public class CycleRedTest extends LinearOpMode {
             Bucket.setPosition(0.3);
         }
         while (opModeIsActive() && runtime.seconds() < bucketTime + 3.5) {
-            Bucket.setPosition(0.75);
+            Bucket.setPosition(0.77);
         }
 
         Slide.setTargetPosition(0);
@@ -143,8 +142,8 @@ public class CycleRedTest extends LinearOpMode {
         runtime.reset();
         while (opModeIsActive() && runtime.seconds() < 2 && hasFreight == false) {
             colorSensor();
-            Intake.setPower(-0.5);
-            Intake2.setPower(0.5);
+            Intake.setPower(-1);
+            Intake2.setPower(1);
         }
         if (hasFreight == true) {
             telemetry.addData("Freight", "Yes");
@@ -188,10 +187,8 @@ public class CycleRedTest extends LinearOpMode {
             ((SwitchableLight) colorSensor).enableLight(true);
         }
 
-        // Wait for the start button to be pressed.
-        waitForStart();
 
-        Bucket.setPosition(0.75);
+        Bucket.setPosition(0.77);
 
         // Loop until we are asked to stop
 
@@ -243,6 +240,8 @@ public class CycleRedTest extends LinearOpMode {
         }
 
     public void getPosition() {
+        SampleMecanumDrive myLocalizer = new SampleMecanumDrive(hardwareMap);
+
         myLocalizer.update();
 
         Pose2d currentPose = myLocalizer.getPoseEstimate();
@@ -278,13 +277,11 @@ public class CycleRedTest extends LinearOpMode {
         webcamExample = new WebcamExample();
         webcamExample.initCV(hardwareMap);
         //Set starting pose
+
         Pose2d startPose = new Pose2d(6, -64, Math.toRadians(-90));
 
         drive.setPoseEstimate(startPose);
 
-
-
-        waitForStart();
         // Get the normalized colors from the sensor
 
         int level;
@@ -310,6 +307,8 @@ public class CycleRedTest extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+        waitForStart();
+
         //Cycle from starting position to hub
         TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
                 .setReversed(true)
@@ -328,9 +327,8 @@ public class CycleRedTest extends LinearOpMode {
 
         colorSensor();
         intakeColor();
-getPosition();
 
-        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(currentPose)
+        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
                 .setReversed(true)
                 .splineTo(new Vector2d(-11, -46), Math.toRadians(90))
                 .build();
@@ -359,7 +357,6 @@ getPosition();
         getPosition();
 
 
-        drive.followTrajectorySequence(traj2);
 
         drive.update();
     }
