@@ -15,10 +15,9 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
-
-
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.opmodes.WebcamExample;
+import org.firstinspires.ftc.teamcode.opmodes.Webcam;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import android.app.Activity;
@@ -36,7 +35,7 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@Autonomous(name = "CycleRedTest", group = "Exercises")
+@Autonomous(name = "CycleRedTest.java", group = "Exercises")
 public class CycleRedTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime(); //Declared AND Initialized
     public DcMotor FrontLeft; //Declared  but not initialized
@@ -49,10 +48,11 @@ public class CycleRedTest extends LinearOpMode {
     public DcMotor Slide;
     public Servo Bucket;
     int x = 0;
-    public WebcamExample webcamExample = null;
+    public Webcam webcamExample;
     final float[] hsvValues = new float[3];
     float gain = 2;
     boolean hasFreight;
+    int level;
     Pose2d currentPose = new Pose2d(6, -64, Math.toRadians(-90));
     RevColorSensorV3 colorSensor;
 
@@ -114,44 +114,40 @@ public class CycleRedTest extends LinearOpMode {
 
     }
 
-    public void scoreFreight() {
-        Slide.setTargetPosition(-1100);
+    public void scoreFreight(int height) {
+        Slide.setTargetPosition(height);
         Slide.setPower(1);
         Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (Slide.isBusy() && opModeIsActive()) {
         }
         resetStartTime();
         double bucketTime = runtime.seconds();
-        while (opModeIsActive() && runtime.seconds() < bucketTime + 2) {
+        while (opModeIsActive() && runtime.seconds() < bucketTime + 1.5) {
             Bucket.setPosition(0.3);
         }
-        while (opModeIsActive() && runtime.seconds() < bucketTime + 3.5) {
+        while (opModeIsActive() && runtime.seconds() < bucketTime + 2.5) {
             Bucket.setPosition(0.77);
         }
 
         Slide.setTargetPosition(0);
         Slide.setPower(1);
         Slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (Slide.isBusy() && opModeIsActive()) {
-        }
     }
 
 
     public void intakeColor() {
 
         runtime.reset();
-        while (opModeIsActive() && runtime.seconds() < 2 && hasFreight == false) {
+        while (opModeIsActive() && hasFreight == false) {
             colorSensor();
-            Intake.setPower(-1);
-            Intake2.setPower(1);
         }
-        if (hasFreight == true) {
+        if (hasFreight) {
             telemetry.addData("Freight", "Yes");
 
         } else {
             telemetry.addData("Freight", "No");
-            sleep(100000);
         }
+        telemetry.update();
     }
 
     public void colorSensor() {
@@ -170,11 +166,6 @@ public class CycleRedTest extends LinearOpMode {
         // contain the value. See http://web.archive.org/web/20190311170843/https://infohost.nmt.edu/tcc/help/pubs/colortheory/web/hsv.html
         // for an explanation of HSV color.
         final float[] hsvValues = new float[3];
-
-        // xButtonPreviouslyPressed and xButtonCurrentlyPressed keep track of the previous and current
-        // state of the X button on the gamepad
-        boolean xButtonPreviouslyPressed = false;
-        boolean xButtonCurrentlyPressed = false;
 
         // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
         // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
@@ -222,7 +213,7 @@ public class CycleRedTest extends LinearOpMode {
             double dist = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
             double hue = hsvValues[0];
 
-            if (dist < 4) {
+            if (dist < 2.5) {
                 if (60 < hue && hue < 95 || hue > 100 && hsvValues[2] > 0.1) {
                     telemetry.addLine("The intake has a block in it");
                     hasFreight = true;
@@ -239,13 +230,13 @@ public class CycleRedTest extends LinearOpMode {
 
         }
 
-    public void getPosition() {
-        SampleMecanumDrive myLocalizer = new SampleMecanumDrive(hardwareMap);
-
-        myLocalizer.update();
-
-        Pose2d currentPose = myLocalizer.getPoseEstimate();
-    }
+//    public void getPosition() {
+//        SampleMecanumDrive myLocalizer = new SampleMecanumDrive(hardwareMap);
+//
+//        myLocalizer.update();
+//
+//        Pose2d currentPose = myLocalizer.getPoseEstimate();
+//    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -274,8 +265,8 @@ public class CycleRedTest extends LinearOpMode {
             ((SwitchableLight) color).enableLight(true);
         }
 
-        webcamExample = new WebcamExample();
-        webcamExample.initCV(hardwareMap);
+        webcamExample = new Webcam();
+        webcamExample.init(hardwareMap);
         //Set starting pose
 
         Pose2d startPose = new Pose2d(6, -64, Math.toRadians(-90));
@@ -284,23 +275,22 @@ public class CycleRedTest extends LinearOpMode {
 
         // Get the normalized colors from the sensor
 
-        int level;
-        int[] counts = {0, 0, 0};
-        for (int i = 0; i < 500; i++) {
-            if (webcamExample.getShippingHubLevel() == 0) {
-                i = 0;
-                continue;
+        resetStartTime();
+        while(opModeIsActive() && runtime.seconds()< 1) {
+            telemetry.addData("Hub Level", webcamExample.getShippingHubLevel());
+            if(webcamExample.getShippingHubLevel() == 0) {
+                resetStartTime();
             }
-            counts[webcamExample.getShippingHubLevel() - 1]++;
-        }
+            if (webcamExample.getShippingHubLevel() == 1) { // Level = 1
+                level = 1;
 
-        if (counts[0] > counts[1] && counts[0] > counts[2]) { // Level = 1
-            level = 1;
-
-        } else if (counts[1] > counts[0] && counts[1] > counts[2]) { // Level = 2
-            level = 2;
-        } else { // Level = 3
-            level = 3;
+            } else if (webcamExample.getShippingHubLevel() == 2) { // Level = 2
+                level = 2;
+            } else { // Level = 3
+                level = 3;
+            }
+            telemetry.addData("Hub Level", level);
+            telemetry.update();
         }
         telemetry.addData("Hub Level", level);
         telemetry.update();
@@ -312,52 +302,82 @@ public class CycleRedTest extends LinearOpMode {
         //Cycle from starting position to hub
         TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
                 .setReversed(true)
-                .splineTo(new Vector2d(-11, -46), Math.toRadians(90))
+                .splineTo(new Vector2d(-15, -46), Math.toRadians(90))
                 .build();
-        drive.followTrajectorySequence(traj);
+        TrajectorySequence traj5 = drive.trajectorySequenceBuilder(startPose)
+                .setReversed(true)
+                .splineTo(new Vector2d(-15, -52), Math.toRadians(90))
+                .build();
+        if(level ==1) {
+            telemetry.addData("Level", "1");
+            drive.followTrajectorySequence(traj5);
+            scoreFreight(-400);
+        } else if(level == 2) {
+            telemetry.addData("Level", "2");
+            drive.followTrajectorySequence(traj);
+            scoreFreight(-700);
+        }
+         else{
+            telemetry.addData("Level", "3");
+            drive.followTrajectorySequence(traj);
+            scoreFreight(-1100);
 
-        scoreFreight();
+        }
+
+        hasFreight = false;
 
         //Cycle to warehouse
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(traj.end())
                 .setReversed(false)
-                .splineTo(new Vector2d(45, -66), Math.toRadians(0))
+                .splineTo(new Vector2d(38, -66), Math.toRadians(0))
                 .build();
         drive.followTrajectorySequence(traj2);
 
-        colorSensor();
-        intakeColor();
+while (!hasFreight && !isStopRequested()) {
+            colorSensor();
+            Intake.setPower(-0.4);
+            Intake2.setPower(1);
+            drive.setWeightedDrivePower(new Pose2d(-.15, 0, 0));
+            drive.setWeightedDrivePower(new Pose2d(.225, 0, 0));
+        }
+        sleep(300);
+        drive.update();
 
-        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(traj2.end())
+        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setReversed(true)
-                .splineTo(new Vector2d(-11, -46), Math.toRadians(90))
+                .splineTo(new Vector2d(-15, -46), Math.toRadians(90))
                 .build();
 
+
         drive.followTrajectorySequence(traj3);
 
-        scoreFreight();
+        Intake.setPower(0);
+        Intake2.setPower(0);
+        scoreFreight(-1050);
+        hasFreight = false;
 
         drive.followTrajectorySequence(traj2);
 
-        colorSensor();
-        intakeColor();
-        getPosition();
-
+        while (!hasFreight && !isStopRequested()) {
+            colorSensor();
+            Intake.setPower(-0.4);
+            Intake2.setPower(1);
+            drive.setWeightedDrivePower(new Pose2d(-.15, 0, 0));
+            drive.setWeightedDrivePower(new Pose2d(.225, 0, 0));
+        }
+sleep(500);
+        drive.update();
         drive.followTrajectorySequence(traj3);
-        scoreFreight();
+        Intake.setPower(0);
+        Intake2.setPower(0);
+        scoreFreight(-1050);
+hasFreight = false;
 
-        drive.followTrajectorySequence(traj2);
-
-        colorSensor();
-        intakeColor();
-        getPosition();
-
-        drive.followTrajectorySequence(traj3);
-        scoreFreight();
-        getPosition();
-
-
-
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(traj.end())
+                .setReversed(false)
+                .splineTo(new Vector2d(35, -66), Math.toRadians(0))
+                .build();
+        drive.followTrajectorySequence(traj4);
         drive.update();
     }
 }
